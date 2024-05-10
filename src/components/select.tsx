@@ -1,20 +1,20 @@
 import React from 'react';
-import {Select as BaseSelect, SelectProps as BaseSelectProps} from '@mui/base/Select';
-import {Option as BaseOption} from '@mui/base/Option';
+import JoySelect, {SelectProps} from '@mui/joy/Select';
+import JoyOption from '@mui/joy/Option';
 
-type SelectProps<T extends {}> = {
+type CustomSelectProps<T extends {}> = {
   options: Array<{label: string, value: T}>;
-} & BaseSelectProps<T, false>
+} & SelectProps<T, false>
 
-export function Select<T extends {}>(props: SelectProps<T>) {
+export function Select<T extends {}>(props: CustomSelectProps<T>) {
   const {options, ...rest} = props;
 
   return (
-    <BaseSelect {...rest}>
+    <JoySelect {...rest} variant='plain'>
       {options.map((({label, value}) => (
-        <BaseOption key={label} value={value}>{label}</BaseOption>
+        <JoyOption key={label} value={value}>{label}</JoyOption>
       )))}
-    </BaseSelect>
+    </JoySelect>
   );
 };
 

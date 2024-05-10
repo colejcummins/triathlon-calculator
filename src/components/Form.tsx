@@ -4,13 +4,14 @@ import duration from 'dayjs/plugin/duration';
 import {observer} from 'mobx-react-lite';
 
 import {useFormStore, formatDuration, DistanceUnit} from '../stores';
-import {Select} from './select';
+import {Select} from './Select';
+import {DurationInput} from './DurationInput';
 
 dayjs.extend(duration);
 
 const SwimForm = observer(() => {
-  const {swimState, setSwimDistanceUnits} = useFormStore();
-  const {duration, distance, distanceUnits, speed, speedUnits} = swimState;
+  const {formState, setDistanceUnits, setSpeedUnits} = useFormStore();
+  const {duration, distance, distanceUnits, speed, speedUnits} = formState.swim;
 
   const swimSpeedOptions: Array<{label: string, value: DistanceUnit}> = [
     {label: '/ 100 m', value: 'meters'},
@@ -25,8 +26,12 @@ const SwimForm = observer(() => {
   ];
 
   const handleDistanceUnitChange = useCallback((_: any, value: DistanceUnit | null) => {
-    setSwimDistanceUnits(value as DistanceUnit);
-  }, [setSwimDistanceUnits]);
+    setDistanceUnits('swim', value as DistanceUnit);
+  }, [setDistanceUnits]);
+
+  const handleSpeedUnitChange = useCallback((_: any, value: DistanceUnit | null) => {
+    setSpeedUnits('swim', value as DistanceUnit);
+  }, [setSpeedUnits]);
 
   return (
     <div className='flex flex-col'>
@@ -36,16 +41,16 @@ const SwimForm = observer(() => {
       </div>
       <input type="text" value={formatDuration(duration)} />
       <div className='flex'>
-        <input type="text" value={formatDuration(speed)} />
-        <input type="text" value={speedUnits} />
+        <input type="text" value={speed} />
+        <Select value={speedUnits} options={swimSpeedOptions} onChange={handleSpeedUnitChange} />
       </div>
     </div>
   );
 });
 
 const BikeForm = observer(() => {
-  const {bikeState, setBikeSpeed, setBikeDistanceUnits, setBikeSpeedUnits} = useFormStore();
-  const {duration, distance, distanceUnits, speed, speedUnits} = bikeState;
+  const {formState, setDistanceUnits, setSpeedUnits, setSpeed, setDuration} = useFormStore();
+  const {duration, distance, distanceUnits, speed, speedUnits} = formState.bike;
 
   const bikeDistanceOptions: Array<{label: string, value: DistanceUnit}> = [
     {label: 'mi', value: 'miles'},
@@ -58,16 +63,20 @@ const BikeForm = observer(() => {
   ];
 
   const handleSpeedChange = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
-    setBikeSpeed(parseInt(evt.target.value) || 0);
-  }, [setBikeSpeed]);
+    setSpeed('bike', parseInt(evt.target.value) || 0);
+  }, [setSpeed]);
 
   const handleDistanceUnitChange = useCallback((_: any, value: DistanceUnit | null) => {
-    setBikeDistanceUnits(value as DistanceUnit);
-  }, [setBikeDistanceUnits]);
+    setDistanceUnits('bike', value as DistanceUnit);
+  }, [setDistanceUnits]);
 
   const handleSpeedUnitChange = useCallback((_: any, value: DistanceUnit | null) => {
-    setBikeSpeedUnits(value as DistanceUnit);
-  }, [setBikeSpeedUnits]);
+    setSpeedUnits('bike', value as DistanceUnit);
+  }, [setSpeedUnits]);
+
+  const handleDurationChange = useCallback((value: duration.Duration) => {
+    setDuration('bike', value);
+  }, [setDuration]);
 
   return (
     <div className='flex flex-col'>
@@ -75,7 +84,7 @@ const BikeForm = observer(() => {
         <input type="text" value={distance} />
         <Select value={distanceUnits} options={bikeDistanceOptions} onChange={handleDistanceUnitChange}/>
       </div>
-      <input type="text" value={formatDuration(duration)} />
+      <DurationInput value={duration} onChange={handleDurationChange} />
       <div className='flex'>
         <input type="text" value={speed} onChange={handleSpeedChange}/>
         <Select value={speedUnits} options={bikeSpeedOptions} onChange={handleSpeedUnitChange} />
@@ -85,17 +94,26 @@ const BikeForm = observer(() => {
 });
 
 const RunForm = observer(() => {
-  const {runState, setRunDistanceUnits} = useFormStore();
-  const {duration, distance, distanceUnits, speed, speedUnits} = runState;
+  const {formState, setDistanceUnits, setSpeedUnits, setSpeed} = useFormStore();
+  const {duration, distance, distanceUnits, speed, speedUnits} = formState.run;
 
   const runDistanceOptions: Array<{label: string, value: DistanceUnit}> = [
     {label: 'mi', value: 'miles'},
     {label: 'km', value: 'kilometers'}
   ];
 
+  const runSpeedOptions: Array<{label: string, value: DistanceUnit}> = [
+    {label: '/ mi', value: 'miles'},
+    {label: '/ km', value: 'kilometers'}
+  ];
+
   const handleDistanceUnitChange = useCallback((_: any, value: DistanceUnit | null) => {
-    setRunDistanceUnits(value as DistanceUnit);
-  }, [setRunDistanceUnits]);
+    setDistanceUnits('run', value as DistanceUnit);
+  }, [setDistanceUnits]);
+
+  const handleSpeedUnitChange = useCallback((_: any, value: DistanceUnit | null) => {
+    setSpeedUnits('run', value as DistanceUnit);
+  }, [setSpeedUnits]);
 
   return (
     <div className='flex flex-col'>
@@ -105,8 +123,8 @@ const RunForm = observer(() => {
       </div>
       <input type="text" value={formatDuration(duration)} />
       <div className='flex'>
-        <input type="text" value={formatDuration(speed)} />
-        <input type="text" value={speedUnits} />
+        <input type="text" value={speed} />
+        <Select value={speedUnits} options={runSpeedOptions} onChange={handleSpeedUnitChange} />
       </div>
     </div>
   );
