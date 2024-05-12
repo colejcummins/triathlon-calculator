@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useCallback, ChangeEvent} from 'react';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import Box from '@mui/joy/Box';
@@ -7,21 +7,20 @@ import {PatternFormat, PatternFormatProps} from 'react-number-format';
 
 dayjs.extend(duration);
 
-interface DurationInputProps {
-  value: duration.Duration;
-  onChange: (val: duration.Duration) => void;
-}
+/**
 
-const PatternFormatAdapter = React.forwardRef<PatternFormatProps, DurationInputProps>(
+
+const PatternFormatAdapter = React.forwardRef<PatternFormatProps, PatternFormatCustomProps>(
   function PatternFormatAdapter(props, ref) {
     const {onChange, value} = props;
 
     return (
       <PatternFormat
-        value={value.format("hh:mm:ss")}
+        value={value}
         getInputRef={ref}
-        onChange={(val) => console.log(val)}
+        onChange={onChange}
         format="##:##:##"
+        mask="_"
         allowEmptyFormatting={true}
         valueIsNumericString={true}
       />
@@ -29,16 +28,70 @@ const PatternFormatAdapter = React.forwardRef<PatternFormatProps, DurationInputP
     );
   }
 );
+*/
+
+const removeArrows = {
+  "-moz-appearance": "textfield",
+  "input::-webkit-inner-spin-button": {
+      "-webkit-appearance": "none",
+      margin: 0,
+  }
+};
+
+interface DurationInputProps {
+  value: duration.Duration;
+  onChange: (val: duration.Duration) => void;
+}
 
 export const DurationInput = ({value, onChange}: DurationInputProps) => {
+  const handleHoursChange = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
+    const parsed = parseInt(evt.target.value);
+    if (parsed >= 0 && parsed <= 24) {
+      onChange(dayjs.duration({hours: parsed, minutes: value.minutes(), seconds: value.seconds()}));
+    }
+  }, [value, onChange])
 
   return (
-    <Box display="flex">
+    <Box display="flex" alignItems="center">
       <Input
         variant="plain"
+        type="number"
+        value={value.hours()}
+        onChange={handleHoursChange}
+        sx={{...removeArrows}}
         slotProps={{
           input: {
-            component: PatternFormatAdapter
+            max: 24,
+            min: 0,
+            step: 1
+          }
+        }}
+      />
+      <Box fontSize="18px">:</Box>
+      <Input
+        variant="plain"
+        type="number"
+        value={value.minutes()}
+        onChange={(evt) => console.log(evt.target.value)}
+        sx={{...removeArrows}}
+        slotProps={{
+          input: {
+            max: 60,
+            min: 0
+          }
+        }}
+      />
+      <Box fontSize="18px">:</Box>
+      <Input
+        variant="plain"
+        type="number"
+        value={value.seconds()}
+        onChange={(evt) => console.log(evt.target.value)}
+        sx={{...removeArrows}}
+        slotProps={{
+          input: {
+            max: 60,
+            min: 0
           }
         }}
       />

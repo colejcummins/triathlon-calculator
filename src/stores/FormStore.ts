@@ -71,7 +71,7 @@ export class FormStore {
     bike: {
       distance: DEFAULT_RACE_DISTANCES['olympic'].bike,
       distanceUnits: 'kilometers',
-      duration: dayjs.duration({hours: 2}),
+      duration: dayjs.duration({hours: 2, minutes: 0, seconds: 0}),
       speed: 0,
       speedUnits: 'kilometers'
     },
