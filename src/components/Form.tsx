@@ -3,7 +3,7 @@ import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import {observer} from 'mobx-react-lite';
 
-import {useFormStore, formatDuration, DistanceUnit} from '../stores';
+import {useFormStore, formatDuration, DistanceUnit, convertToDistance} from '../stores';
 import {Select} from './Select';
 import {DurationInput} from './DurationInput';
 
@@ -81,12 +81,12 @@ const BikeForm = observer(() => {
   return (
     <div className='flex flex-col'>
       <div className='flex'>
-        <input type="text" value={distance} />
+        <input type="text" value={convertToDistance(distance, distanceUnits)} />
         <Select value={distanceUnits} options={bikeDistanceOptions} onChange={handleDistanceUnitChange}/>
       </div>
       <DurationInput value={duration} onChange={handleDurationChange} />
       <div className='flex'>
-        <input type="text" value={speed} onChange={handleSpeedChange}/>
+        <input type="text" value={convertToDistance(speed, speedUnits)} onChange={handleSpeedChange}/>
         <Select value={speedUnits} options={bikeSpeedOptions} onChange={handleSpeedUnitChange} />
       </div>
     </div>

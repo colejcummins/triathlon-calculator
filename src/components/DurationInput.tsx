@@ -1,4 +1,4 @@
-import React, {useState, useCallback, ChangeEvent} from 'react';
+import React, {useState, useCallback, ChangeEvent, WheelEventHandler} from 'react';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import Box from '@mui/joy/Box';
@@ -45,25 +45,48 @@ interface DurationInputProps {
 
 export const DurationInput = ({value, onChange}: DurationInputProps) => {
   const handleHoursChange = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
-    const parsed = parseInt(evt.target.value);
-    if (parsed >= 0 && parsed <= 24) {
+    const parsed = parseInt(evt.target.value) || 0;
+    if (parsed <= 24) {
       onChange(dayjs.duration({hours: parsed, minutes: value.minutes(), seconds: value.seconds()}));
     }
   }, [value, onChange])
+
+  const handleMinutesChange = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
+    const parsed = parseInt(evt.target.value) || 0;
+    if (parsed <= 60) {
+      onChange(dayjs.duration({hours: value.hours(), minutes: parsed, seconds: value.seconds()}));
+    }
+  }, [value, onChange]);
+
+  const handleSecondsChange = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
+    const parsed = parseInt(evt.target.value) || 0;
+    if (parsed <= 60) {
+      onChange(dayjs.duration({hours: value.hours(), minutes: value.minutes(), seconds: parsed}));
+    }
+  }, [value, onChange]);
+
+  const preventWheel: WheelEventHandler<HTMLInputElement> = (e) => {
+    e.target.blur();
+    e.stopPropagation();
+    setTimeout(() => {
+      e.target.focus()
+    }, 0)
+  };
 
   return (
     <Box display="flex" alignItems="center">
       <Input
         variant="plain"
         type="number"
-        value={value.hours()}
+        value={value.hours().toString()}
         onChange={handleHoursChange}
         sx={{...removeArrows}}
         slotProps={{
           input: {
-            max: 24,
             min: 0,
-            step: 1
+            max: 24,
+            step: 1,
+            onWheel:
           }
         }}
       />
@@ -71,13 +94,15 @@ export const DurationInput = ({value, onChange}: DurationInputProps) => {
       <Input
         variant="plain"
         type="number"
-        value={value.minutes()}
-        onChange={(evt) => console.log(evt.target.value)}
+        value={value.minutes().toString()}
+        onChange={handleMinutesChange}
         sx={{...removeArrows}}
         slotProps={{
           input: {
             max: 60,
-            min: 0
+            min: 0,
+            step: 1,
+            onWheel: () => false
           }
         }}
       />
@@ -85,13 +110,15 @@ export const DurationInput = ({value, onChange}: DurationInputProps) => {
       <Input
         variant="plain"
         type="number"
-        value={value.seconds()}
-        onChange={(evt) => console.log(evt.target.value)}
+        value={value.seconds().toString()}
+        onChange={handleSecondsChange}
         sx={{...removeArrows}}
         slotProps={{
           input: {
             max: 60,
-            min: 0
+            min: 0,
+            step: 1,
+            onWheel: () => false
           }
         }}
       />
