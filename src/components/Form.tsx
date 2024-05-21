@@ -1,13 +1,23 @@
-import React, {useState, useCallback, ChangeEvent} from 'react';
+import React, {useState, useCallback, ChangeEvent, Fragment} from 'react';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import {observer} from 'mobx-react-lite';
+import Input from '@mui/joy/Input';
+import Divider from '@mui/joy/Divider';
 
-import {useFormStore, formatDuration, DistanceUnit, convertToDistance} from '../stores';
+import {useFormStore, formatDuration, DistanceUnit, convertToDistance, convertToMeters} from '../stores';
 import {Select} from './Select';
 import {DurationInput} from './DurationInput';
 
 dayjs.extend(duration);
+
+const removeArrows = {
+  "-moz-appearance": "textfield",
+  "input::-webkit-inner-spin-button": {
+      "-webkit-appearance": "none",
+      margin: 0,
+  }
+};
 
 const SwimForm = observer(() => {
   const {formState, setDistanceUnits, setSpeedUnits} = useFormStore();
@@ -49,7 +59,7 @@ const SwimForm = observer(() => {
 });
 
 const BikeForm = observer(() => {
-  const {formState, setDistanceUnits, setSpeedUnits, setSpeed, setDuration} = useFormStore();
+  const {formState, setDistanceUnits, setSpeedUnits, setSpeed, setDuration, setDistance} = useFormStore();
   const {duration, distance, distanceUnits, speed, speedUnits} = formState.bike;
 
   const bikeDistanceOptions: Array<{label: string, value: DistanceUnit}> = [
@@ -62,8 +72,12 @@ const BikeForm = observer(() => {
     {label: 'kph', value: 'kilometers'}
   ];
 
+  const handleDistanceChange = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
+    setDistance('bike', convertToMeters(parseInt(evt.target.value) || 0, distanceUnits));
+  }, []);
+
   const handleSpeedChange = useCallback((evt: ChangeEvent<HTMLInputElement>) => {
-    setSpeed('bike', parseInt(evt.target.value) || 0);
+    setSpeed('bike', convertToMeters(parseInt(evt.target.value) || 0, speedUnits));
   }, [setSpeed]);
 
   const handleDistanceUnitChange = useCallback((_: any, value: DistanceUnit | null) => {
@@ -80,15 +94,47 @@ const BikeForm = observer(() => {
 
   return (
     <div className='flex flex-col'>
-      <div className='flex'>
-        <input type="text" value={convertToDistance(distance, distanceUnits)} />
-        <Select value={distanceUnits} options={bikeDistanceOptions} onChange={handleDistanceUnitChange}/>
-      </div>
+      <Input
+        type="number"
+        variant="plain"
+        value={convertToDistance(distance, distanceUnits)}
+        onChange={handleDistanceChange}
+        sx={{...removeArrows}}
+        endDecorator={
+          <Select
+            value={distanceUnits}
+            options={bikeDistanceOptions}
+            onChange={handleDistanceUnitChange}
+            slotProps={{
+              listbox: {
+                variant: 'plain',
+              },
+            }}
+            sx={{ mr: -1.5, '&:hover': { bgcolor: 'transparent' } }}
+          />
+        }
+      />
       <DurationInput value={duration} onChange={handleDurationChange} />
-      <div className='flex'>
-        <input type="text" value={convertToDistance(speed, speedUnits)} onChange={handleSpeedChange}/>
-        <Select value={speedUnits} options={bikeSpeedOptions} onChange={handleSpeedUnitChange} />
-      </div>
+      <Input
+        type="number"
+        variant="plain"
+        value={convertToDistance(speed, speedUnits)}
+        onChange={handleSpeedChange}
+        sx={{...removeArrows}}
+        endDecorator={
+          <Select
+            value={speedUnits}
+            options={bikeSpeedOptions}
+            onChange={handleSpeedUnitChange}
+            slotProps={{
+              listbox: {
+                variant: 'plain',
+              },
+            }}
+            sx={{ mr: -1.5, '&:hover': { bgcolor: 'transparent' } }}
+          />
+        }
+      />
     </div>
   );
 });
@@ -118,7 +164,7 @@ const RunForm = observer(() => {
   return (
     <div className='flex flex-col'>
       <div className='flex'>
-        <input type="text" value={distance} />
+        <input type="text" value={convertToDistance(distance, distanceUnits)} />
         <Select value={distanceUnits} options={runDistanceOptions} onChange={handleDistanceUnitChange}/>
       </div>
       <input type="text" value={formatDuration(duration)} />

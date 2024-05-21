@@ -43,13 +43,27 @@ export const DEFAULT_RACE_DISTANCES: Record<RaceType, Record<LegType, number>> =
 }
 
 export const convertToDistance = (distance: number, unit: DistanceUnit) => {
+  let out = 0;
   switch (true) {
-    case unit === 'miles': return distance / 1609.34;
-    case unit === 'yards': return distance * 1.09361;
-    case unit === 'kilometers': return distance / 1000;
+    case unit === 'miles': out = distance / 1609.34; break;
+    case unit === 'yards': out =  distance * 1.09361; break;
+    case unit === 'kilometers': out = distance / 1000; break;
     default:
-      return distance;
+      out = distance;
   }
+  return Math.round(out / 100) * 100;
+}
+
+export const convertToMeters = (distance: number, unit: DistanceUnit) => {
+  let out = 0;
+  switch (true) {
+    case unit === 'miles': out = distance * 1609.34; break;
+    case unit === 'yards': out = distance / 1.09361; break;
+    case unit === 'kilometers': out = distance * 1000; break;
+    default:
+      out = distance;
+  }
+  return Math.round(out / 100) * 100;
 }
 
 export const formatDuration = (dur: duration.Duration) => {

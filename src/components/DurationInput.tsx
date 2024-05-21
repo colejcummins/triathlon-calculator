@@ -65,14 +65,6 @@ export const DurationInput = ({value, onChange}: DurationInputProps) => {
     }
   }, [value, onChange]);
 
-  const preventWheel: WheelEventHandler<HTMLInputElement> = (e) => {
-    e.target.blur();
-    e.stopPropagation();
-    setTimeout(() => {
-      e.target.focus()
-    }, 0)
-  };
-
   return (
     <Box display="flex" alignItems="center">
       <Input
@@ -86,7 +78,6 @@ export const DurationInput = ({value, onChange}: DurationInputProps) => {
             min: 0,
             max: 24,
             step: 1,
-            onWheel:
           }
         }}
       />
@@ -102,7 +93,6 @@ export const DurationInput = ({value, onChange}: DurationInputProps) => {
             max: 60,
             min: 0,
             step: 1,
-            onWheel: () => false
           }
         }}
       />
@@ -118,7 +108,6 @@ export const DurationInput = ({value, onChange}: DurationInputProps) => {
             max: 60,
             min: 0,
             step: 1,
-            onWheel: () => false
           }
         }}
       />
